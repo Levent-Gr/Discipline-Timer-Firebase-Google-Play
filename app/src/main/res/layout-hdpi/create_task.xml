@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blue_1">
+
+    <ImageView
+        android:id="@+id/closeImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_close" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/createTaskTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Task"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/editTextTaskTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/edittext_background"
+            android:ems="10"
+            android:hint="Task Title"
+            android:inputType="textPersonName"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textSize="13sp" />
+
+        <EditText
+            android:id="@+id/editTextTaskExplanation"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="0dp"
+            android:background="@drawable/edittext_background"
+            android:ems="10"
+            android:gravity="top|left"
+            android:hint="Task Explanation"
+            android:inputType="textMultiLine"
+            android:lines="5"
+            android:minLines="3"
+            android:padding="10dp"
+            android:scrollbars="vertical"
+            android:scrollHorizontally="false"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <CheckBox
+                android:id="@+id/checkBoxMonday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:button="@drawable/checkbox_monday"
+                android:buttonTint="@color/white"
+                android:text="MON"
+                android:textColor="@color/white"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <CheckBox
+                android:id="@+id/checkBoxTuesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="20dp"
+                android:button="@drawable/checkbox_monday"
+                android:buttonTint="@color/white"
+                android:text="TUE"
+                android:textColor="@color/white"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <CheckBox
+                android:id="@+id/checkBoxWednesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="20dp"
+                android:button="@drawable/checkbox_monday"
+                android:buttonTint="@color/white"
+                android:text="WED"
+                android:textColor="@color/white"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <CheckBox
+                android:id="@+id/checkBoxThursday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="20dp"
+                android:button="@drawable/checkbox_monday"
+                android:buttonTint="@color/white"
+                android:text="THU"
+                android:textColor="@color/white"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <CheckBox
+                android:id="@+id/checkBoxFriday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="35dp"
+                android:button="@drawable/checkbox_monday"
+                android:buttonTint="@color/white"
+                android:text="FRI"
+                android:textColor="@color/white"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <CheckBox
+                android:id="@+id/checkBoxSaturday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:button="@drawable/checkbox_monday"
+                android:buttonTint="@color/white"
+                android:text="SAT"
+                android:textColor="@color/white"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <CheckBox
+                android:id="@+id/checkBoxSunday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:button="@drawable/checkbox_monday"
+                android:buttonTint="@color/white"
+                android:text="SUN"
+                android:textColor="@color/white"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="180dp">
+            <TextView
+                android:id="@+id/timeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="37dp"
+                android:text="Task time"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.shawnlin.numberpicker.NumberPicker
+                android:id="@+id/numberTaskTimeHour"
+                android:layout_width="110dp"
+                android:layout_height="60dp"
+                android:layout_below="@+id/timeTextView"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:np_dividerColor="@color/white"
+                app:np_height="40dp"
+                app:np_orientation="horizontal"
+                app:np_selectedTextColor="@color/white"
+                app:np_selectedTextSize="20sp"
+                app:np_textColor="@color/white"
+                app:np_textSize="15sp"
+                app:np_width="130dp" />
+
+            <TextView
+                android:id="@+id/timeTextViewHour"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="39dp"
+                android:layout_marginEnd="-10dp"
+                android:layout_toStartOf="@+id/numberTaskTimeHour"
+                android:text="hour"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                app:layout_constraintEnd_toStartOf="@+id/numberTaskTimeHour"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.shawnlin.numberpicker.NumberPicker
+                android:id="@+id/numberTaskTime"
+                android:layout_width="110dp"
+                android:layout_height="60dp"
+                android:layout_below="@+id/timeTextView"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="53dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:np_dividerColor="@color/white"
+                app:np_height="40dp"
+                app:np_orientation="horizontal"
+                app:np_selectedTextColor="@color/white"
+                app:np_selectedTextSize="20sp"
+                app:np_textColor="@color/white"
+                app:np_textSize="15sp"
+                app:np_width="130dp" />
+
+
+            <TextView
+                android:id="@+id/timeTextViewMin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="23dp"
+                android:text="min"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                app:layout_constraintStart_toStartOf="@+id/timeTextViewHour"
+                app:layout_constraintTop_toBottomOf="@+id/timeTextViewHour" />
+
+            <com.shawnlin.numberpicker.NumberPicker
+                android:id="@+id/numberTaskAccrual"
+                android:layout_width="50dp"
+                android:layout_height="85dp"
+                android:layout_below="@+id/accrualTimeTextViewExp"
+                android:layout_marginEnd="45dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/accrualTimeTextViewExp"
+                app:np_dividerColor="@color/white"
+                app:np_dividerDistance="37dp"
+                app:np_orientation="vertical"
+                app:np_selectedTextColor="@color/white"
+                app:np_selectedTextSize="15sp"
+                app:np_textColor="@color/white"
+                app:np_textSize="10sp" />
+
+            <TextView
+                android:id="@+id/accrualTextViewMin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="62dp"
+                android:layout_marginEnd="28dp"
+                android:layout_toRightOf="@+id/numberTaskAccrual"
+                android:text="min"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/accrualTimeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:text="Time increment"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/accrualTimeTextViewExp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/accrualTimeTextView"
+                android:layout_marginEnd="20dp"
+                android:text="Every week the task time will increase"
+                android:textColor="@color/white"
+                android:textSize="6sp"
+                android:textStyle="italic"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/accrualTimeTextView" />
+
+            <Button
+                android:id="@+id/buttonCreate"
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/numberTaskTime"
+                android:layout_marginStart="25dp"
+                android:background="@drawable/button_bg"
+                android:text="Create"
+                android:textColor="@color/blue_1"
+                android:textSize="10sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/buttonDelete" />
+
+            <Button
+                android:id="@+id/buttonDelete"
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/numberTaskAccrual"
+                android:layout_marginEnd="25dp"
+                android:layout_marginTop="0dp"
+                android:background="@drawable/button_bg"
+                android:text="Delete"
+                android:textColor="@color/blue_1"
+                android:textSize="10sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/numberTaskAccrual" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
