@@ -16,6 +16,9 @@ Discipline Timer is a habit tracking application. You can follow the habits you 
 - LiveData
 - RecyclerView
 
+## Google Play Link
+https://play.google.com/store/apps/details?id=com.leventgorgu.discipline
+
 
 ## Logos
 
