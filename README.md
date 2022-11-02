@@ -16,6 +16,14 @@ Discipline Timer is a habit tracking application. You can follow the habits you 
 - LiveData
 - RecyclerView
 
+## Integrating with your app 
+Download this project remove" google-services.json"from app folder.The Just add Firebase to your Android Project.
+
+These links may help you
+
+- [Add Firebase To Your Android Project](https://firebase.google.com/docs/android/setup)
+- [How To Set Up Firebase In Your Project](https://firebase.google.com)
+
 ## Google Play Link
 https://play.google.com/store/apps/details?id=com.leventgorgu.discipline
 
