@@ -1,28 +1,39 @@
 package com.leventgorgu.discipline.View
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.work.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.Timestamp
 import com.leventgorgu.discipline.R
+import com.leventgorgu.discipline.Service.TimerService
+import com.leventgorgu.discipline.Utils.TimerSharedPreferences
 import com.leventgorgu.discipline.Workers.DateAccrual
 import com.leventgorgu.discipline.Workers.UpdateTaskCompleted
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
 class MainActivity2 : AppCompatActivity() {
 
+    private lateinit var timerSharedPreferences: TimerSharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
+
+        timerSharedPreferences=TimerSharedPreferences(this)
+        timerSharedPreferences.clearTimerSharedPreferences()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         val navController = supportFragmentManager.findFragmentById(R.id.fragmentContainerView)?.findNavController()
         if(navController!=null){
             bottomNavigationView.setupWithNavController(navController)}
+
         getWorks()
     }
 
@@ -57,10 +68,7 @@ class MainActivity2 : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         val nowMillis = calendar.timeInMillis
 
-        if (calendar.get(Calendar.HOUR_OF_DAY) > hour || calendar.get(Calendar.HOUR_OF_DAY) == hour && calendar.get(
-                Calendar.MINUTE
-            ) + 1 >= minute
-        ) {
+        if (calendar.get(Calendar.HOUR_OF_DAY) >= hour && calendar.get(Calendar.MINUTE) + 1 >= minute) {
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
         calendar.set(Calendar.HOUR_OF_DAY, hour)

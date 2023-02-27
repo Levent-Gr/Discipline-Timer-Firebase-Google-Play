@@ -60,7 +60,6 @@
             android:layout_marginTop="40dp"
             android:drawableTop="@drawable/timerw256"
             android:drawablePadding="10dp"
-            android:text="00:00:00"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="70dp" />

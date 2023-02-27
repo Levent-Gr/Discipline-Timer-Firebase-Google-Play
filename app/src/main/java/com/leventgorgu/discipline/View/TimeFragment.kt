@@ -1,5 +1,9 @@
 package com.leventgorgu.discipline.View
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,8 +11,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import com.google.android.gms.ads.AdView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,7 +18,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.leventgorgu.discipline.Model.Task
 import com.leventgorgu.discipline.R
-import com.leventgorgu.discipline.ViewModel.TimeViewModel
+import com.leventgorgu.discipline.Service.TimerService
+import com.leventgorgu.discipline.Utils.TimerSharedPreferences
 import com.leventgorgu.discipline.databinding.FragmentTimeBinding
 //import org.junit.rules.Timeout.millis
 import java.text.DateFormat
@@ -35,11 +38,14 @@ class TimeFragment : Fragment() {
     private lateinit var taskArray : ArrayList<Task>
     private lateinit var taskNameArray :ArrayList<String>
     private lateinit var arrayAdapter: ArrayAdapter<String>
-    private var timerRunFromViewModel = false
-    private val viewModel : TimeViewModel by viewModels()
-    private var selectedTaskFromViewModel :Task? = null
-    private var currentDuration : Long? = null
     //lateinit var mAdView : AdView
+    private lateinit var serviceIntent: Intent
+    private var time :Long = 0L
+    private var selectedTaskTime:Long=0L
+    private var timerRunning = false
+    private lateinit var timerSharedPreferences : TimerSharedPreferences
+    private var selectedTaskId:String?=null
+    private var updateTime: BroadcastReceiver? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,118 +58,168 @@ class TimeFragment : Fragment() {
         }
         taskArray = ArrayList()
         taskNameArray = ArrayList()
+        timerSharedPreferences = TimerSharedPreferences(requireContext())
+        serviceIntent = Intent(requireContext().applicationContext, TimerService::class.java)
+
         //MobileAds.initialize(requireContext())
+
+        timerRunning = timerSharedPreferences.getTimerStatus()
+        if (!timerRunning){
+            time = timerSharedPreferences.getTime()
+        }
+
+        selectedTaskId = timerSharedPreferences.getTaskId()
+
+        val stopTime = timerSharedPreferences.getTime()
+        val selectedTime = timerSharedPreferences.getSelectedTaskTime()
+        if (selectedTime!=0L){
+            selectedTaskTime = selectedTime
+            if (!timerRunning && stopTime==0L )
+                time = selectedTaskTime
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentTimeBinding.inflate(layoutInflater,container,false)
-        val view = binding.root
-        binding.imageViewReset.visibility = View.INVISIBLE
-        binding.imageViewStartPause.visibility = View.INVISIBLE
-
+        _binding = FragmentTimeBinding.inflate(layoutInflater, container, false)
         /*
         mAdView = binding.adView
         val adRequest = AdRequest.Builder().build()
         mAdView.loadAd(adRequest)
          */
-
-        observeToSubscribes()
-        return view
+        return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        selectedTaskFromViewModel?.let {
-            it.time.set(0, currentDuration.toString())
-            timerControl(it,1)
-        }
+    override fun onStart() {
+        super.onStart()
+        updateTimeReceiver()
+        getData()
+        updateUI()
+    }
 
+    private fun updateUI() {
         arrayAdapter = ArrayAdapter(requireContext(), R.layout.dropdown_item,taskNameArray)
         binding.autoCompleteTextView.setAdapter(arrayAdapter)
         binding.autoCompleteTextView.setOnItemClickListener { adapterView, view, i, l ->
-
             val item = adapterView.getItemAtPosition(i).toString()
             binding.imageViewStartPause.visibility = View.VISIBLE
-            binding.imageViewStartPause.setImageResource(R.drawable.playwhite)
-            viewModel.setTaskCompleted()
+            timerSharedPreferences.clearTimerSharedPreferences()
+            timerRunning = false
+            updateUI()
             for(task in taskArray){
                 if(item==task.title){
-                    viewModel.setSelectedTask(task)
-                    timerControl(task,0)
+                    timerControl(task)
                 }
             }
         }
-        getData()
+
+        if(time!=0L)
+            binding.textViewTimer.text = longToDuration(time)
+        else if (!timerRunning&&time>=0L && time<=999L){
+            binding.textViewTimer.text ="00:00:00"
+        }
+        binding.imageViewStartPause.visibility = View.VISIBLE
+
+        if (timerRunning) {
+            binding.autoCompleteTextView.isEnabled = false
+            binding.textInputLayout.isEnabled = false
+            binding.imageViewStartPause.visibility = View.VISIBLE
+            binding.imageViewStartPause.setImageResource(R.drawable.pausewhite)
+            binding.imageViewReset.visibility = View.INVISIBLE
+            timerControlButtons()
+        }else{
+            binding.autoCompleteTextView.isEnabled = true
+            binding.textInputLayout.isEnabled = true
+            binding.imageViewStartPause.setImageResource(R.drawable.playwhite)
+            binding.imageViewReset.visibility = View.VISIBLE
+            timerControlButtons()
+        }
+        getSelectedTask()
     }
 
-    private fun timerControl(task: Task,control:Int){
-        val time:Long
-        if (control==1){
-            time = (task.time[0]).toLong()
-        }else{
-            val min = task.time[0].toLong()*60000
-            val hour = task.time[1].toLong()*3600000
-            time = min + hour
-            viewModel.resetStartTime(time)
+    private fun updateTimeReceiver(){
+        updateTime = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                time = intent!!.getLongExtra(TimerService.TIME_EXTRA, 0L)
+                binding.textViewTimer.text = longToDuration(time)
+                timeOutUpdateUI()
+            }
         }
-        binding.textViewTimer.text = longToDuration(time)
+
+        val filter = IntentFilter().apply {
+            addAction(TimerService.TIMER_UPDATED)
+        }
+        requireContext().registerReceiver(updateTime, filter)
+    }
+
+    private fun timerControl(task: Task){
+        val min = task.time[0].toLong()*60000
+        val hour = task.time[1].toLong()*3600000
+        selectedTaskTime = min + hour
+        timerSharedPreferences.saveSelectedTaskTime(selectedTaskTime)
+
+        serviceIntent.putExtra(TimerService.TIME_EXTRA,selectedTaskTime)
+        time = selectedTaskTime
+        selectedTaskId = task.taskId
+        timerSharedPreferences.saveTaskId(selectedTaskId!!)
+        binding.textViewTimer.text = longToDuration(selectedTaskTime)
+
+        timerControlButtons()
+    }
+
+    private fun timerControlButtons() {
         binding.imageViewStartPause.setOnClickListener {
-            if (timerRunFromViewModel){
-                binding.imageViewStartPause.setImageResource(R.drawable.playwhite)
-                binding.imageViewReset.visibility = View.VISIBLE
-                binding.autoCompleteTextView.isEnabled = true
-                binding.textInputLayout.isEnabled = true
-                viewModel.timerPause()
-            } else {
-                binding.imageViewStartPause.setImageResource(R.drawable.pausewhite)
-                binding.imageViewReset.visibility = View.INVISIBLE
-                binding.autoCompleteTextView.isEnabled = false
-                binding.textInputLayout.isEnabled = false
-                viewModel.timerStart(task.taskId)
+            if(timerRunning){
+                stopTimer()
+            } else if (time!=0L && selectedTaskId!!.isNotEmpty()){
+                startTimer()
             }
         }
         binding.imageViewReset.setOnClickListener {
-            viewModel.timerReset()
-            binding.imageViewReset.visibility = View.INVISIBLE
-            binding.imageViewStartPause.visibility = View.VISIBLE
+            resetTimer()
         }
     }
 
-    private fun observeToSubscribes(){
-        viewModel.durationCountDown.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            currentDuration = it
-            binding.textViewTimer.text = longToDuration(long =it)
-        })
-        viewModel.timerRun.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            timerRunFromViewModel = it
-            if(it){
-                binding.imageViewStartPause.setImageResource(R.drawable.pausewhite)
-                binding.imageViewStartPause.visibility = View.VISIBLE
-                binding.imageViewReset.visibility = View.INVISIBLE
-                binding.autoCompleteTextView.isEnabled = false
-                binding.textInputLayout.isEnabled = false
-            }else{
-                binding.imageViewStartPause.setImageResource(R.drawable.playwhite)
-                binding.imageViewStartPause.visibility = View.VISIBLE
-                binding.imageViewReset.visibility = View.VISIBLE
-            }
-        })
-        viewModel.taskCompleted.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            if (it){
-                binding.textViewTimer.text = "00:00:00"
-                binding.imageViewStartPause.setImageResource(R.drawable.playwhite)
-                binding.imageViewStartPause.visibility = View.INVISIBLE
-                binding.imageViewReset.visibility = View.INVISIBLE
-                binding.autoCompleteTextView.isEnabled = true
-                binding.textInputLayout.isEnabled = true
-                Toast.makeText(requireContext(),"Task completed",Toast.LENGTH_LONG).show()
-            }
-        })
-        viewModel.selectedTask.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-          it.let {
-            selectedTaskFromViewModel = it
-          }
-        })
+    private fun resetTimer() {
+        binding.textViewTimer.text = longToDuration(selectedTaskTime)
+        time = selectedTaskTime
+        binding.imageViewReset.visibility = View.INVISIBLE
+        binding.imageViewStartPause.visibility = View.VISIBLE
+        stopTimer()
+    }
+
+    private fun startTimer() {
+        binding.imageViewStartPause.setImageResource(R.drawable.pausewhite)
+        binding.imageViewReset.visibility = View.INVISIBLE
+        binding.autoCompleteTextView.isEnabled = false
+        binding.textInputLayout.isEnabled = false
+        timerRunning = true
+        timerSharedPreferences.saveTimerStatus(timerRunning)
+        val taskId = timerSharedPreferences.getTaskId()
+        serviceIntent.putExtra(TimerService.TASK_ID,taskId)
+        serviceIntent.putExtra(TimerService.TIME_EXTRA,time)
+        requireContext().startService(serviceIntent)
+    }
+
+    private fun stopTimer() {
+        binding.imageViewStartPause.setImageResource(R.drawable.playwhite)
+        binding.imageViewReset.visibility = View.VISIBLE
+        binding.autoCompleteTextView.isEnabled = true
+        binding.textInputLayout.isEnabled = true
+        timerRunning = false
+        timerSharedPreferences.saveTimerStatus(timerRunning)
+        timerSharedPreferences.saveTime(time)
+        requireContext().stopService(serviceIntent)
+    }
+
+    private fun timeOutUpdateUI(){
+        if (time==0L && timerRunning){
+            serviceIntent.putExtra(TimerService.TIME_EXTRA,0L)
+            binding.autoCompleteTextView.isEnabled = true
+            binding.textInputLayout.isEnabled = true
+            binding.imageViewStartPause.visibility = View.INVISIBLE
+            binding.imageViewReset.visibility = View.INVISIBLE
+            binding.textViewTimer.text ="00:00:00"
+        }
     }
 
     private fun longToDuration(long: Long): String {
@@ -202,7 +258,34 @@ class TimeFragment : Fragment() {
                 arrayAdapter.notifyDataSetChanged()
             }
         }
-
-
     }
+
+    private fun getSelectedTask(){
+        firestore.collection("Tasks")
+            .whereEqualTo("UserId",userId)
+            .whereEqualTo("Completed",true)
+            .addSnapshotListener { value, error ->
+                if (error!=null){
+                    if(auth.currentUser!=null){
+                        Toast.makeText(requireContext(),error.localizedMessage?.toString() ?: "Error",Toast.LENGTH_LONG).show()
+                    }
+                }else if(value!=null){
+                    val documents = value.documents
+                    for (doc in documents){
+                        if(selectedTaskId==doc.id)
+                            timeOutUpdateUI()
+                    }
+                }
+            }
+    }
+
+    private fun unregisterReceiver() {
+        requireContext().unregisterReceiver(updateTime)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver()
+    }
+
 }

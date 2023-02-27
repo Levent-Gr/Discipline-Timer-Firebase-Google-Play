@@ -24,6 +24,7 @@ class UpdateTaskCompleted(val context: Context, workerParams: WorkerParameters) 
         if (currentUser!=null){
             userId = currentUser.uid
         }
+
         var result :Result = Result.failure()
         
             val dateTime = LocalDateTime.now()

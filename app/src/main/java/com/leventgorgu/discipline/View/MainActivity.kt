@@ -25,6 +25,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.leventgorgu.discipline.R
+import com.leventgorgu.discipline.Utils.TimerSharedPreferences
 import com.leventgorgu.discipline.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {

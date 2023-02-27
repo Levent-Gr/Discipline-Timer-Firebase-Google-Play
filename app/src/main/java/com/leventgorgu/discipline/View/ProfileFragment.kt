@@ -43,10 +43,10 @@ class ProfileFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var storage :FirebaseStorage
     private lateinit var auth : FirebaseAuth
-    var currentUser : FirebaseUser? = null
+    private var currentUser : FirebaseUser? = null
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
-    var imageData :Uri? = null
+    private var imageData :Uri? = null
     private lateinit var alertResetPassword:AlertDialog
 
 
@@ -167,9 +167,11 @@ class ProfileFragment : Fragment() {
 
     private fun getProfileData(){
         if(currentUser!!.photoUrl!=null){
-            Picasso.get().load(currentUser!!.photoUrl).into(binding.profileImageView)}
+            Picasso.get().load(currentUser!!.photoUrl).into(binding.profileImageView)
+        }
         if(currentUser!!.displayName!=null) {
-            binding.userNameEditText.setText(currentUser!!.displayName) }
+            binding.userNameEditText.setText(currentUser!!.displayName)
+        }
         binding.emailTextView.text = currentUser!!.email
     }
 
